@@ -101,18 +101,13 @@ namespace PlayerDatabase
             ShowAllPlayers();
             Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
             int id = Program.GetNumber(Console.ReadLine());
+            Player player;
 
-            if (TryGetId(id))
+            if (TryGetPlayer(id, out player))
             {
-                for (int i = 0; i < _players.Count; i++)
-                {
-                    if (_players[i].Id == id)
-                    {
-                        Console.WriteLine("Удален игрок");
-                        _players[i].ShowInfo();
-                        _players.RemoveAt(i);
-                    }
-                }
+                Console.WriteLine("Удален игрок");
+                player.ShowInfo();
+                _players.Remove(player);
             }
             else
             {
@@ -125,17 +120,12 @@ namespace PlayerDatabase
             ShowAllPlayers();
             Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
             int id = Program.GetNumber(Console.ReadLine());
+            Player player;
 
-            if (TryGetId(id))
+            if (TryGetPlayer(id, out player))
             {
-                foreach (var player in _players)
-                {
-                    if (player.Id == id)
-                    {
-                        Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был заблокирован!");
-                        player.Ban();
-                    }
-                }
+                Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был заблокирован!");
+                player.Ban();
             }
             else
             {
@@ -148,17 +138,12 @@ namespace PlayerDatabase
             ShowAllPlayers();
             Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
             int id = Program.GetNumber(Console.ReadLine());
+            Player player;
 
-            if (TryGetId(id))
+            if (TryGetPlayer(id, out player))
             {
-                foreach (var player in _players)
-                {
-                    if (player.Id == id)
-                    {
-                        Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был разблокирован!");
-                        player.Unban();
-                    }
-                }
+                Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был разблокирован!");
+                player.Unban();
             }
             else
             {
@@ -174,12 +159,15 @@ namespace PlayerDatabase
             }
         }
 
-        private bool TryGetId(int id)
+        private bool TryGetPlayer(int id, out Player player)
         {
+            player = null;
+
             for (int i = 0; i < _players.Count; i++)
             {
                 if (_players[i].Id == id)
                 {
+                    player = _players[i];
                     return true;
                 }
             }
@@ -195,29 +183,29 @@ namespace PlayerDatabase
         public int Id { get; private set; }
         public string Name { get; set; }
         public int Level { get; private set; }
-        public bool isBan { get; private set; }
+        public bool IsBan { get; private set; }
 
         public Player(string name)
         {
             Id = ++_ids;
             Name = name;
             Level = 0;
-            isBan = false;
+            IsBan = false;
         }
 
         public void Ban()
         {
-            isBan = true;
+            IsBan = true;
         }
 
         public void Unban()
         {
-            isBan = false;
+            IsBan = false;
         }
 
         public void ShowInfo()
         {
-            Console.WriteLine($"Порядковый номер - {Id} | Имя - {Name} | Уровень: {Level} | Забанен: {isBan}");
+            Console.WriteLine($"Порядковый номер - {Id} | Имя - {Name} | Уровень: {Level} | Забанен: {IsBan}");
         }
     }
 }
