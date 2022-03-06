@@ -23,60 +23,38 @@ namespace PlayerDatabase
                                   $"\n{(int)MenuCommands.Exit}. {MenuCommands.Exit}");
                 Console.Write("Выберите команду: ");
                 userInput = GetNumber(Console.ReadLine());
+                Console.Clear();
 
                 switch (userInput)
                 {
                     case (int)MenuCommands.AddPlayer:
-                        Console.Clear();
-                        Console.WriteLine("Введите Имя игрока:");
-                        string playerName = Console.ReadLine();
-                        database.AddPlayer(new Player(playerName));
-                        Console.ReadKey();
-                        Console.Clear();
+                        database.AddPlayer();
                         break;
                     case (int)MenuCommands.RemovePlayer:
-                        Console.Clear();
-                        database.ShowAllPlayers();
-                        Console.WriteLine("Введите Номер игрока, которого хотите удалить:");
-                        int playerNumber = GetNumber(Console.ReadLine());
-                        database.RemovePlayer(playerNumber);
-                        Console.ReadKey();
-                        Console.Clear();
+                        database.RemovePlayer();
                         break;
                     case (int)MenuCommands.BanPlayer:
-                        Console.Clear();
-                        database.ShowAllPlayers();
-                        Console.WriteLine("\nВведите Айди игрока, которого хотите забанить:");
-                        int playerId = GetNumber(Console.ReadLine());
-                        database.BanPlayer(playerId);
-                        Console.ReadKey();
-                        Console.Clear();
+                        database.BanPlayer();
                         break;
                     case (int)MenuCommands.UnbanPlayer:
-                        Console.Clear();
-                        database.ShowAllPlayers();
-                        Console.WriteLine("Введите Айди игрока, которого хотите разбанить:");
-                        playerId = GetNumber(Console.ReadLine());
-                        database.UnbanPlayer(playerId);
-                        Console.ReadKey();
-                        Console.Clear();
+                        database.UnbanPlayer();
                         break;
                     case (int)MenuCommands.Exit:
                         isOpen = false;
-                        Console.Clear();
                         break;
                     default:
                         Console.WriteLine("Я не знаю такой команды!");
-                        Console.ReadKey();
-                        Console.Clear();
                         break;
                 }
+
+                Console.ReadKey();
+                Console.Clear();
             }
 
             Console.WriteLine("Выход ...");
         }
 
-        static int GetNumber(string numberText)
+        public static int GetNumber(string numberText)
         {
             int number;
 
@@ -104,48 +82,87 @@ namespace PlayerDatabase
     {
         private List<Player> _players = new List<Player>();
 
-        public void AddPlayer(Player player)
+        public void AddPlayer(Player player = null)
         {
+            if(player == null)
+            {
+                Console.WriteLine("Введите Имя игрока:");
+                string playerName = Console.ReadLine();
+                player = new Player(playerName);
+            }
+
             _players.Add(player);
             Console.WriteLine("Добавлен новый игрок");
             player.ShowInfo();
         }
 
-        public void RemovePlayer(int index)
+        public void RemovePlayer()
         {
-            if (_players.Contains(_players[index]))
+            ShowAllPlayers();
+            Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
+            int id = Program.GetNumber(Console.ReadLine());
+
+            if (TryGetId(id))
             {
-                Console.WriteLine("Удален игрок");
-                _players[index].ShowInfo();
-                _players.RemoveAt(index);
+                for (int i = 0; i < _players.Count; i++)
+                {
+                    if (_players[i].Id == id)
+                    {
+                        Console.WriteLine("Удален игрок");
+                        _players[i].ShowInfo();
+                        _players.RemoveAt(i);
+                    }
+                }
             }
             else
             {
-                Console.WriteLine("Игрок не был найден!");
+                Console.WriteLine("Неверный айди");
             }
         }
 
-        public void BanPlayer(int id)
+        public void BanPlayer()
         {
-            foreach (var player in _players)
+            ShowAllPlayers();
+            Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
+            int id = Program.GetNumber(Console.ReadLine());
+
+            if (TryGetId(id))
             {
-                if (player.Id == id)
+                foreach (var player in _players)
                 {
-                    Console.WriteLine($"Игрок с Айди - {player.Id} и Имя - {player.Name} был заблокирован!");
-                    player.Ban();
+                    if (player.Id == id)
+                    {
+                        Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был заблокирован!");
+                        player.Ban();
+                    }
                 }
+            }
+            else
+            {
+                Console.WriteLine("Неверный айди");
             }
         }
 
-        public void UnbanPlayer(int id)
+        public void UnbanPlayer()
         {
-            foreach (var player in _players)
+            ShowAllPlayers();
+            Console.WriteLine("Введите Айди игрока, которого хотите удалить:");
+            int id = Program.GetNumber(Console.ReadLine());
+
+            if (TryGetId(id))
             {
-                if (player.Id == id)
+                foreach (var player in _players)
                 {
-                    Console.WriteLine($"Игрок с Айди - {player.Id} и Имя - {player.Name} был разблокирован!");
-                    player.Unban();
+                    if (player.Id == id)
+                    {
+                        Console.WriteLine($"Игрок с Айди - {player.Id} | Имя - {player.Name} был разблокирован!");
+                        player.Unban();
+                    }
                 }
+            }
+            else
+            {
+                Console.WriteLine("Неверный айди");
             }
         }
 
@@ -153,9 +170,21 @@ namespace PlayerDatabase
         {
             for (int i = 0; i < _players.Count; i++)
             {
-                Console.Write(i + ". ");
                 _players[i].ShowInfo();
             }
+        }
+
+        private bool TryGetId(int id)
+        {
+            for (int i = 0; i < _players.Count; i++)
+            {
+                if (_players[i].Id == id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
